@@ -1,12 +1,4 @@
-trigger:
-- main
-- build-pipeline
-
-pool:
-    vmImage: 'ubuntu-20.04'
-    demands:
-    - npm
-    
+   
   variables:
     buildConfiguration: 'Release'
   
