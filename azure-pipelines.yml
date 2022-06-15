@@ -1,51 +1,50 @@
---- 
-  steps: 
-    - 
-      displayName: "Use .NET SDK 6.x"
-      inputs: 
-        packageType: sdk
-        version: 6.x
-      task: UseDotNet@2
-    - 
-      displayName: "Run npm install by Nish"
-      inputs: 
-        verbose: false
-      task: Npm@1
-    - 
-      displayName: "Compile Sass assets"
-      script: "./node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot"
-    - 
-      displayName: "Run gulp tasks"
-      task: gulp@1
-    - 
-      displayName: "Write build info"
-      script: "echo \"$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)\" > buildinfo.txt"
-      workingDirectory: Tailspin.SpaceGame.Web/wwwroot
-    - 
-      displayName: "Restore project dependencies"
-      inputs: 
-        command: restore
-        projects: "**/*.csproj"
-      task: DotNetCoreCLI@2
-    - 
-      displayName: "Build the project - Release"
-      inputs: 
-        arguments: "--no-restore --configuration Release"
-        command: build
-        projects: "**/*.csproj"
-      task: DotNetCoreCLI@2
-    - 
-      displayName: "Publish the project - Release"
-      inputs: 
-        arguments: "--no-build --configuration Release --output $(Build.ArtifactStagingDirectory)/Release"
-        command: publish
-        projects: "**/*.csproj"
-        publishWebProjects: false
-        zipAfterPublish: true
-      task: DotNetCoreCLI@2
-    - 
-      condition: succeeded()
-      displayName: "Publish Artifact: drop"
-      task: PublishBuildArtifacts@1
-  variables: 
-    buildConfiguration: Release
+  variables:
+    buildConfiguration: 'Release'
+  
+  steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET SDK 6.x'
+    inputs:
+      packageType: sdk
+      version: '6.x'
+  
+  - task: Npm@1
+    displayName: 'Run npm install by Nish'
+    inputs:
+      verbose: false
+  
+  - script: './node_modules/.bin/node-sass Tailspin.SpaceGame.Web/wwwroot --output Tailspin.SpaceGame.Web/wwwroot'
+    displayName: 'Compile Sass assets'
+  
+  - task: gulp@1
+    displayName: 'Run gulp tasks'
+  
+  - script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
+    displayName: 'Write build info'
+    workingDirectory: Tailspin.SpaceGame.Web/wwwroot
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore project dependencies'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+  
+  - task: DotNetCoreCLI@2
+    displayName: 'Build the project - Release'
+    inputs:
+      command: 'build'
+      arguments: '--no-restore --configuration Release'
+      projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish the project - Release'
+    inputs:
+      command: 'publish'
+      projects: '**/*.csproj'
+      publishWebProjects: false
+      arguments: '--no-build --configuration Release --output $(Build.ArtifactStagingDirectory)/Release'
+      zipAfterPublish: true
+    
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: drop'
+    condition: succeeded()
